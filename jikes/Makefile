@@ -24,7 +24,7 @@ jikesrvm/JikesRVM:
 
 data:
 	mkdir -p data
-	wget --continue --quiet --directory-prefix=data http://downloads.sourceforge.net/project/dacapobench/9.12-bach/dacapo-9.12-bach.jar
+	wget --continue --quiet --directory-prefix=data --content-disposition https://github.com/dacapobench/dacapobench/releases/download/v9.12-bach/dacapo-9.12-bach.jar
 	wget --continue --quiet --directory-prefix=data http://downloads.sourceforge.net/project/dacapobench/archive/2006-10-MR2/dacapo-2006-10-MR2.jar
 	wget --continue --quiet --directory-prefix=data http://snipersim.org/packages/dacapo-lucene-2-4-1-bugfree.jar
 
