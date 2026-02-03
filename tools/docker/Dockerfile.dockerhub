@@ -93,7 +93,7 @@ ENV PATH /opt/rh/devtoolset-2/root/usr/bin/:$PATH
 # Download the Benchmarks
 RUN mkdir -p sniper
 COPY sniper sniper/
-RUN cd /home/user && git clone http://snipersim.org/git/benchmarks.git && cd benchmarks && git checkout -q 06d3a79ccc3deea71d382e6038ecbe3a39e54156 && make
+RUN cd /home/user && git clone http://snipersim.org/git/benchmarks.git && cd benchmarks && git checkout -q ba6004fd2b251be0ee5fc9e5d77374f1d4c80317 && make
 
 FROM centos:6 AS runner
 # Fix main repos, from https://stackoverflow.com/a/29559374
@@ -149,7 +149,7 @@ ENV PATH /usr/local/bin/:$PATH
 # Copy the compiled binaries from the previous docker image
 COPY --from=builder /usr/local /usr/local/
 # Set up a copy of the benchmarks root
-RUN git clone http://snipersim.org/git/benchmarks.git && cd benchmarks && git checkout -q a7966d67872a471370637ab0f170d4530fe54699
+RUN git clone http://snipersim.org/git/benchmarks.git && cd benchmarks && git checkout -q ba6004fd2b251be0ee5fc9e5d77374f1d4c80317
 RUN make -C ./benchmarks/tools/hooks buildscripts
 # Copy benchmarks from the previous docker image
 COPY --from=builder /home/user/benchmarks/local/pi/pi benchmarks/local/pi/pi
