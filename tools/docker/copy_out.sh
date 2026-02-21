@@ -25,9 +25,8 @@ docker create --name "$CONTAINER_NAME" "$IMAGE" >/dev/null
 for d in "${DIRS[@]}"; do
   SRC_PATH="$SRC_BASE/$d"
   echo "Copying $SRC_PATH -> $DEST_DIR/$d ..."
-  # docker cp will fail if path doesn't exist; check first
-  if docker exec "$CONTAINER_NAME" test -e "$SRC_PATH" >/dev/null 2>&1; then
-    docker cp "$CONTAINER_NAME":"$SRC_PATH" "$DEST_DIR"/
+  if docker cp "$CONTAINER_NAME":"$SRC_PATH" "$DEST_DIR"/ 2>/dev/null; then
+    echo "Copied $d"
   else
     echo "Warning: $SRC_PATH not found in image"
   fi
