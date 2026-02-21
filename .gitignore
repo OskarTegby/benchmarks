@@ -16,3 +16,5 @@ tools/hooks/
 tools/python/
 tools/scheduler
 suites.pyc
+sim.*
+expected_outputs
