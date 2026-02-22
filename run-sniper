@@ -16,11 +16,40 @@ HOME = abspath(os.path.dirname(__file__))
 
 from suites import modules
 
+LLT_CONFIG = {
+    'DPPRED': 1,
+    'PHIST_THD': 6,
+    'PFQ_SIZE': 8,
+    'SHADOW_TABLE_SIZE': 2,
+}
+
+LLC_CONFIG = {
+    'CBPRED': 1,
+    'BHIST_THD': 6,
+}
+
+def write_predictor_config(outputdir):
+    """Write predictor configuration to a file"""
+    config_file = os.path.join(outputdir, 'predictor_config.txt')
+    with open(config_file, 'w') as f:
+        for key, value in LLT_CONFIG.items():
+            f.write('%s=%s\n' % (key, value))
+        for key, value in LLC_CONFIG.items():
+            f.write('%s=%s\n' % (key, value))
 
 def usage():
   print 'Run benchmark under the Sniper simulator'
   print 'Usage:'
   print '  %s  -p <program>  -i <inputsize (test)> -n <ncores (1)>  -m <machines (1)>  -d <outputdir (.)>  -c <config-file>  -r <sniper-root-dir>  -g <options>' % sys.argv[0]
+  print ''
+  print 'Predictor options:'
+  print '  --dppred=<0|1>              Enable/disable DPPRED (default: 1)'
+  print '  --phist-thd=<N>             PHIST threshold (default: 6)'
+  print '  --pfq-size=<N>              PFQ size (default: 8)'
+  print '  --shadow-table-size=<N>     Shadow table size (default: 2)'
+  print '  --cbpred=<0|1>              Enable/disable CBPRED (default: 1)'
+  print '  --bhist-thd=<N>             BHIST threshold (default: 6)'
+  print ''
   print 'Benchmarks:'
   for module in sorted(modules):
     module = __import__(module)
@@ -55,7 +84,10 @@ if not sys.argv[1:]:
 opts_passthrough = [ 'profile', 'perf', 'gdb', 'gdb-wait', 'gdb-quit', 'appdebug', 'appdebug-manual', 'appdebug-enable', 'power', 'cache-only', 'fast-forward', 'no-cache-warming', 'save-patch', 'pin-stats', 'viz', 'viz-aso', 'wrap-sim=', 'sift' ]
 
 try:
-  opts, args = getopt.getopt(sys.argv[1:], "hvp:i:B:n:m:s:d:c:r:g:", [ "no-roi", "roi-script", "roi", "sim-end=", "save-run", "save-run-prefix=", "save-run-second-stage=", "benchmarks=" ] + opts_passthrough)
+  opts, args = getopt.getopt(sys.argv[1:], "hvp:i:B:n:m:s:d:c:r:g:",
+    [ "no-roi", "roi-script", "roi", "sim-end=", "save-run", "save-run-prefix=", "save-run-second-stage=", "benchmarks=",
+      "dppred=", "phist-thd=", "pfq-size=", "shadow-table-size=", 
+      "cbpred=", "bhist-thd=" ] + opts_passthrough)
 except getopt.GetoptError, e:
   # print help information and exit:
   print e
@@ -122,6 +154,18 @@ for o, a in opts:
       benchmarks.append(bm.split('-'))
     if not ncores:
       ncores = sum([ int(app_nthreads) for package, programname, inputsize, app_nthreads in benchmarks ])
+  if o == '--dppred':
+    LLT_CONFIG['DPPRED'] = int(a)
+  if o == '--phist-thd':
+    LLT_CONFIG['PHIST_THD'] = int(a)
+  if o == '--pfq-size':
+    LLT_CONFIG['PFQ_SIZE'] = int(a)
+  if o == '--shadow-table-size':
+    LLT_CONFIG['SHADOW_TABLE_SIZE'] = int(a)
+  if o == '--cbpred':
+    LLC_CONFIG['CBPRED'] = int(a)
+  if o == '--bhist-thd':
+    LLC_CONFIG['BHIST_THD'] = int(a)
 
 if ncores is None:
   # Keep ncores as None while scanning options, so --benchmarks can set a default overriden by -n
@@ -263,6 +307,9 @@ runcmd = abspath(os.path.join(graphiterootdir, 'run-sniper'))
 
 try:
   rc=1
+
+  write_predictor_config(outputdir)
+
   if not benchmarks:
     package, program = program.rsplit("-",1)
     if '-' in inputsize:
